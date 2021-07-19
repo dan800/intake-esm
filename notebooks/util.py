@@ -1,3 +1,5 @@
+import numpy as np
+
 # Import dask
 import dask
 
@@ -23,3 +25,15 @@ def get_pbscluster(nthreads):
     dask.config.set({'distributed.dashboard.link':'https://jupyterhub.hpc.ucar.edu/stable/user/{USER}/proxy/{port}/status'})
 
     return cluster
+
+# a function to return the global mean of a dataset
+# variables weighted by cos(latitude)
+#
+def global_mean(ds):
+    lat = ds['lat']
+    weight = np.cos(np.deg2rad(lat))
+    weight /= weight.mean()
+    other_dims = set(ds.dims) - {'year'}
+    
+    return (ds * weight).mean(other_dims)
+
